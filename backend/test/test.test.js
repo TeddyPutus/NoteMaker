@@ -115,7 +115,7 @@ describe("Testing User routes", () => {
         })
     })
     
-    describe("Deletet", () => {
+    describe("Delete a user", () => {
         describe("With a valid user", () => {
             it("returns 200 status", async () => {
                 const {statusCode} = await request(app).delete("/users/delete").send({  email:"teddyputus1@gmail.com", password:"thisisapassword", username: "Tedernator"});
@@ -141,8 +141,129 @@ describe("Testing User routes", () => {
     })  
 })
 
-    
-
 /**--------------------- */
 /** Testing Post Routes */
 /**--------------------- */
+describe("Testing post routes", () => {
+
+    describe("creating a post", () => {
+
+        describe("With valid values", () => {
+
+            it("returns 200 status", async () => {
+                const { statusCode } = await request(app).post("/posts/create/1").send({  title:"testingtestingtestingtesting", content:"don't test me, fool!", isPrivate:true });
+                expect(statusCode).toBe(200);
+            })
+            it("post exists in database", () => {
+                const post = Post.findOne({where:{title: "testingtestingtestingtesting"}});
+                expect(post).toBe(true);
+            })
+
+        });
+
+        describe("With invalid values", () => {
+
+            it("returns 404 status with user that doesn't exist", async () => {
+                const { statusCode } = await request(app).post("/posts/create/404").send({  title:"testingtestingtestingtesting", content:"don't test me, fool!", isPrivate:true });
+                expect(statusCode).toBe(404);
+            })
+            it("returns 400 status when content too short", async () => {
+                const { statusCode } = await request(app).post("/posts/create/1").send({  title:"testingtestingtestingtesting", content:"do", isPrivate:true });
+                expect(statusCode).toBe(400);
+            })
+            it("returns 400 status when title too short", async () => {
+                const { statusCode } = await request(app).post("/posts/create/1").send({  title:"t", content:"don't test me, fool!", isPrivate:true });
+                expect(statusCode).toBe(400);
+            })
+        });
+
+    });
+
+    describe("Get all posts", () => {
+        it("Returns all posts", async () => {
+            const { body } = await request(app).get("/posts")
+           
+            expect(Array.isArray(body)).toBe(true);
+                expect(
+                  body.every(({ title, content, isPrivate }) => title && content && isPrivate)
+                );
+        });
+    })
+
+    describe("Get all public posts of a user", () => {
+        it("Returns posts when id valid", async () => {
+            const { body } = await request(app).get("/posts/1")
+           
+            expect(Array.isArray(body)).toBe(true);
+            expect(body.length).toBe(1)
+            expect(
+                body.every(({ title, content, isPrivate }) => title && content && isPrivate)
+            );
+        });
+
+        it("Returns 404 when id invalid", async () => {
+            const { statusCode } = await request(app).get("/posts/404")
+           
+            expect(statusCode).toBe(404);
+        });
+    })
+
+    describe("Get all private posts of a user", () => {
+        it("Returns posts when id valid", async () => {
+            const { body } = await request(app).get("/posts/private/1")
+           
+            expect(Array.isArray(body)).toBe(true);
+            expect(body.length).toBe(2)
+            expect(
+                body.every(({ title, content, isPrivate }) => title && content && isPrivate)
+            );
+        });
+
+        it("Returns 404 when id invalid", async () => {
+            const { statusCode } = await request(app).get("/posts/private/404")
+           
+            expect(statusCode).toBe(404);
+        });
+    })
+
+    describe("updating a post", () => {
+
+        describe("With valid values", () => {
+
+            it("returns 200 status", async () => {
+                const { statusCode } = await request(app).put("/posts/1").send({userID: "1", password:"ThisIsA",  title:"testingasuccessful update", content:"don't update me, fool!", isPrivate:true });
+                expect(statusCode).toBe(200);
+            })
+            it("post updated in database", () => {
+                const post = Post.findOne({where:{title: "testingasuccessful update"}});
+                expect(post).toBe(true);
+            })
+
+        });
+
+        describe("With invalid values", () => {
+
+            it("returns 404 status with post that doesn't exist", async () => {
+                const { statusCode } = await request(app).put("/posts/404").send({userID: "1", password:"ThisIsA",  title:"testingasuccessful update", content:"don't update me, fool!", isPrivate:true });
+                expect(statusCode).toBe(404);
+            })
+            it("returns 400 status when content too short", async () => {
+                const { statusCode } = await request(app).put("/posts/1").send({userID: "1", password:"ThisIsA",  title:"testingasuccessful update", content:"d", isPrivate:true });
+                expect(statusCode).toBe(400);
+            })
+            it("returns 400 status when title too short", async () => {
+                const { statusCode } = await request(app).put("/posts/1").send({userID: "1", password:"ThisIsA",  title:"t", content:"don't update me, fool!", isPrivate:true });
+                expect(statusCode).toBe(400);
+            })
+            it("returns 401 status when password incorrect", async () => {
+                const { statusCode } = await request(app).put("/posts/1").send({userID: "1", password:"ThisIsWRONG",  title:"testingasuccessful update", content:"don't update me, fool!", isPrivate:true });
+                expect(statusCode).toBe(401);
+            })
+            it("returns 404 status when user ID not found", async () => {
+                const { statusCode } = await request(app).put("/posts/1").send({userID: "404", password:"ThisIsA",  title:"testingasuccessful update", content:"don't update me, fool!", isPrivate:true });
+                expect(statusCode).toBe(404);
+            })
+        });
+
+    });
+});
