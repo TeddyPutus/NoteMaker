@@ -1,0 +1,26 @@
+classDiagram
+    User "1" o-- "*" Post
+
+    class User{
+        +string username
+        +string password
+        +string email
+        +boolean isLoggedIn
+
+        +create()
+        +login()
+        +logout()
+        +delete()
+    }
+
+    class Post{
+        +string title
+        +string content
+        +boolean isPrivate
+
+        +create()
+        +getAll()
+        +getAllFromUser(includePrivate)
+        +update()
+        +delete()
+    }
