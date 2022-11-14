@@ -1,0 +1,14 @@
+{
+  "usersData": [
+    {
+      "email": "testUser@gmail.com",
+      "username": "testUser1",
+      "password": "ThisIsA"
+    },
+    {
+      "email": "someone@gmail.com",
+      "username": "someGuy",
+      "password": "asdfsAS2"
+    }
+  ]
+}

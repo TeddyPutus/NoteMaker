@@ -1,7 +1,8 @@
 const app = require("../server.js");
 const seed = require("../seed.js");
 const request = require("supertest");
-const {db} = require('../db')
+const {Post, User} = require('../models/index.js');
+const {db} = require('../db');
 
 beforeAll(async () => {
     await seed();

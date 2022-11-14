@@ -1,0 +1,14 @@
+{
+    "postsData": [
+      {
+        "title": "testingtesting123",
+        "content": "ThisIsTheFirstPost",
+        "isPrivate": false
+      },
+      {
+        "title": "testingtesting123",
+        "content": "ThisIsTheFirstPrivatePost",
+        "isPrivate": true
+      }
+    ]
+  }
