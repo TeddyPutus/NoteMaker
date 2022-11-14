@@ -151,7 +151,7 @@ describe("Testing post routes", () => {
         describe("With valid values", () => {
 
             it("returns 200 status", async () => {
-                const { statusCode } = await request(app).post("/posts/create/1").send({  title:"testingtestingtestingtesting", content:"don't test me, fool!", isPrivate:true });
+                const { statusCode } = await request(app).post("/posts/1").send({  title:"testingtestingtestingtesting", content:"don't test me, fool!", isPrivate:true });
                 expect(statusCode).toBe(200);
             })
             it("post exists in database", () => {
@@ -164,15 +164,15 @@ describe("Testing post routes", () => {
         describe("With invalid values", () => {
 
             it("returns 404 status with user that doesn't exist", async () => {
-                const { statusCode } = await request(app).post("/posts/create/404").send({  title:"testingtestingtestingtesting", content:"don't test me, fool!", isPrivate:true });
+                const { statusCode } = await request(app).post("/posts/404").send({  title:"testingtestingtestingtesting", content:"don't test me, fool!", isPrivate:true });
                 expect(statusCode).toBe(404);
             })
             it("returns 400 status when content too short", async () => {
-                const { statusCode } = await request(app).post("/posts/create/1").send({  title:"testingtestingtestingtesting", content:"do", isPrivate:true });
+                const { statusCode } = await request(app).post("/posts/1").send({  title:"testingtestingtestingtesting", content:"do", isPrivate:true });
                 expect(statusCode).toBe(400);
             })
             it("returns 400 status when title too short", async () => {
-                const { statusCode } = await request(app).post("/posts/create/1").send({  title:"t", content:"don't test me, fool!", isPrivate:true });
+                const { statusCode } = await request(app).post("/posts/1").send({  title:"t", content:"don't test me, fool!", isPrivate:true });
                 expect(statusCode).toBe(400);
             })
         });
@@ -262,6 +262,39 @@ describe("Testing post routes", () => {
             it("returns 404 status when user ID not found", async () => {
                 const { statusCode } = await request(app).put("/posts/1").send({userID: "404", password:"ThisIsA",  title:"testingasuccessful update", content:"don't update me, fool!", isPrivate:true });
                 expect(statusCode).toBe(404);
+            })
+        });
+
+    });
+
+    describe("deleting a post", () => {
+
+        describe("With valid values", () => {
+
+            it("returns 200 status", async () => {
+                const { statusCode } = await request(app).delete("/posts/1").send({userID: "1", password:"ThisIsA"});
+                expect(statusCode).toBe(200);
+            })
+            it("post updated in database", () => {
+                const post = Post.findOne({where:{title: "testingasuccessful update"}});
+                expect(post).toBe(false);
+            })
+
+        });
+
+        describe("With invalid values", () => {
+
+            it("returns 404 status with post that doesn't exist", async () => {
+                const { statusCode } = await request(app).delete("/posts/404").send({userID: "1", password:"ThisIsA"});
+                expect(statusCode).toBe(404);
+            })
+            it("returns 401 status when password incorrect", async () => {
+                const { statusCode } = await request(app).delete("/posts/3").send({userID: "1", password:"thththththth"});
+                expect(statusCode).toBe(400);
+            })
+            it("returns 404 status when user not found in DB", async () => {
+                const { statusCode } = await request(app).delete("/posts/3").send({userID: "404", password:"ThisIsA"});
+                expect(statusCode).toBe(400);
             })
         });
 
