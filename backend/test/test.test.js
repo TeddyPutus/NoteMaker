@@ -192,7 +192,7 @@ describe("Testing post routes", () => {
 
     describe("Get all public posts of a user", () => {
         it("Returns posts when id valid", async () => {
-            const { body } = await request(app).get("/posts/1")
+            const { body } = await request(app).get("/posts/public/1")
            
             expect(Array.isArray(body)).toBe(true);
             expect(body.length).toBe(1)
@@ -202,7 +202,7 @@ describe("Testing post routes", () => {
         });
 
         it("Returns 404 when id invalid", async () => {
-            const { statusCode } = await request(app).get("/posts/404")
+            const { statusCode } = await request(app).get("/posts/public/404")
            
             expect(statusCode).toBe(404);
         });
@@ -210,17 +210,17 @@ describe("Testing post routes", () => {
 
     describe("Get all private posts of a user", () => {
         it("Returns posts when id valid", async () => {
-            const { body } = await request(app).get("/posts/private/1")
+            const { body } = await request(app).get("/posts/private/2/asdfsAS2")
            
             expect(Array.isArray(body)).toBe(true);
-            expect(body.length).toBe(2)
+            expect(body.length).toBe(1)
             expect(
                 body.every(({ title, content, isPrivate }) => title && content && isPrivate)
             );
         });
 
         it("Returns 404 when id invalid", async () => {
-            const { statusCode } = await request(app).get("/posts/private/404")
+            const { statusCode } = await request(app).get("/posts/private/404/asdfsAS2")
            
             expect(statusCode).toBe(404);
         });

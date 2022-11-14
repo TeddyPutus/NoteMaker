@@ -14,9 +14,9 @@ app.use('/posts', postRouter);
 
 //Comment out app.listen when running supertest file
 
-app.listen(5001, async() => {
-    await seed();
-    console.log('Listening on port 5001');
-});
+// app.listen(5001, async() => {
+//     await seed();
+//     console.log('Listening on port 5001');
+// });
 
 module.exports = app;
