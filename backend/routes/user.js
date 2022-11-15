@@ -4,6 +4,7 @@ const {body, param, validationResult} = require('express-validator');
 const {checkErrors, checkUserID, checkUserPassword, checkUsername, isEmailUnique, isUsernameUnique, checkUserEmail} = require('./middleware');
 const userRouter = Router();
 
+
 //create
 userRouter.post('/',
     isEmailUnique,
