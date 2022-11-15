@@ -6,9 +6,17 @@ const {checkErrors, checkUserID, checkUserPassword, checkUsername} = require('./
 
 ///ADD VALIDATORS!!!!!!!!!
 //create a new post for the user
-// postRouter.post("/:userID", async () => {
-
-// })
+postRouter.post("/:userID",
+    checkUserID,
+    body('title').notEmpty().isLength({min:3, max: 25}),
+    body('content').notEmpty().isLength({min:10, max:250}),
+    body('isPrivate').notEmpty().isBoolean(),
+    checkErrors,
+    async (req, res) => {
+        const newPost = Post.create({title:req.body.title, content:req.body.content, isPrivate:req.body.isPrivate, userId:req.params.userID});
+        if(newPost) res.sendStatus(200);
+    }
+)
 
 //returns all posts not set to private
 postRouter.get('/', async (req, res) => {
@@ -25,12 +33,10 @@ postRouter.get('/public/:userID',
     checkUserID,
     async (req, res) => {
         try {
-            const user = await User.findOne({where:{id : req.params.userID}})
-            if(!user) res.sendStatus(404);
             const posts = await Post.findAll({where:{userId: req.params.userID, isPrivate: false}});
             res.json(posts);
         } catch (error) {
-            // res.status(500).send(error);
+            res.status(500).send(error);
         }
     }
 )
