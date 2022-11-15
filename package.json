@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "test": "jest test/test.test.js --verbose --silent --runInBand --coverage=false",
+    "test": "jest test/test.test.js --verbose --silent=false --runInBand --coverage=false",
     "start": "nodemon server.js"
   },
   "dependencies": {

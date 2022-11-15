@@ -7,8 +7,6 @@ function checkErrors(req, res, next){
     const errors = validationResult(req);
     
     if(!errors.isEmpty()){
-        console.log(errors);
-        console.log(req.body)
         return res.status(400).send({errors: errors.array()});
     }
     else next();
@@ -17,8 +15,7 @@ function checkErrors(req, res, next){
 //Middleware function that checks the user credentials 
 async function checkUserID(req, res, next){
     
-    const user = await User.findOne({where: {id: req.params.userID}})     
-    console.log("HELLO");
+    const user = await User.findOne({where: {id: req.params.userID ? req.params.userID : req.body.userID}})     
     if(!user){
         return res.sendStatus(404);
     }
@@ -27,7 +24,7 @@ async function checkUserID(req, res, next){
 
 async function checkUserPassword(req, res, next){
    
-     const user = await User.findOne({where: {id: req.params.userID, password: req.params.password}})
+     const user = await User.findOne({where: {id: req.params.userID ? req.params.userID : req.body.userID, password: req.params.userID ? req.params.password : req.body.password}})
 
     if(!user){
         return res.sendStatus(401);
@@ -37,7 +34,7 @@ async function checkUserPassword(req, res, next){
 
 async function checkUsername(req, res, next){
    
-    const user = User.findOne({where: {username: req.params.username}})
+    const user = User.findOne({where: {username: req.params.username ? req.params.username : req.body.username}})
 
    if(!user){
         return res.sendStatus(404);

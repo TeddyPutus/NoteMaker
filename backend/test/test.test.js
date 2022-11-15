@@ -234,9 +234,10 @@ describe("Testing post routes", () => {
                 const { statusCode } = await request(app).put("/posts/1").send({userID: "1", password:"ThisIsA",  title:"testingasuccessful update", content:"don't update me, fool!", isPrivate:true });
                 expect(statusCode).toBe(200);
             })
-            it("post updated in database", () => {
-                const post = Post.findOne({where:{title: "testingasuccessful update"}});
-                expect(post).toBe(true);
+            it("post updated in database", async () => {
+                
+                const post = await Post.findOne({where:{title: "testingasuccessful update"}});
+                expect(post.content).toBe("don't update me, fool!");
             })
 
         });
@@ -275,9 +276,9 @@ describe("Testing post routes", () => {
                 const { statusCode } = await request(app).delete("/posts/1").send({userID: "1", password:"ThisIsA"});
                 expect(statusCode).toBe(200);
             })
-            it("post updated in database", () => {
-                const post = Post.findOne({where:{title: "testingasuccessful update"}});
-                expect(post).toBe(false);
+            it("post updated in database", async () => {
+                const post = await Post.findOne({where:{title: "testingasuccessful update"}});
+                expect(post).toBe(null);
             })
 
         });
@@ -290,11 +291,11 @@ describe("Testing post routes", () => {
             })
             it("returns 401 status when password incorrect", async () => {
                 const { statusCode } = await request(app).delete("/posts/3").send({userID: "1", password:"thththththth"});
-                expect(statusCode).toBe(400);
+                expect(statusCode).toBe(401);
             })
             it("returns 404 status when user not found in DB", async () => {
                 const { statusCode } = await request(app).delete("/posts/3").send({userID: "404", password:"ThisIsA"});
-                expect(statusCode).toBe(400);
+                expect(statusCode).toBe(404);
             })
         });
 

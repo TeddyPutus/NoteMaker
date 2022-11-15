@@ -13,8 +13,13 @@ postRouter.post("/:userID",
     body('isPrivate').notEmpty().isBoolean(),
     checkErrors,
     async (req, res) => {
-        const newPost = Post.create({title:req.body.title, content:req.body.content, isPrivate:req.body.isPrivate, userId:req.params.userID});
-        if(newPost) res.sendStatus(200);
+        try {
+            const newPost = Post.create({title:req.body.title, content:req.body.content, isPrivate:req.body.isPrivate, userId:req.params.userID});
+            if(newPost) res.sendStatus(200);
+            else res.sendStatus(404);
+        } catch (error) {
+            res.status(500).send(error);          
+        }
     }
 )
 
@@ -40,7 +45,7 @@ postRouter.get('/public/:userID',
         }
     }
 )
-// /posts/private/404/asdfsAS2
+
 //returns all private posts of specified user
 postRouter.get('/private/:userID/:password',
     checkUserID,
@@ -49,6 +54,41 @@ postRouter.get('/private/:userID/:password',
         try {
             const posts = await Post.findAll({where:{userId: req.params.userID, isPrivate: true}});
             res.json(posts);
+        } catch (error) {
+            res.status(500).send(error);
+        }
+    }
+)
+
+//Update a post
+postRouter.put('/:postID',
+    checkUserID,
+    checkUserPassword,
+    body('title').notEmpty().isLength({min:3, max: 25}),
+    body('content').notEmpty().isLength({min:10, max:250}),
+    body('isPrivate').notEmpty().isBoolean(),
+    checkErrors,
+    async (req, res) => {
+        try {
+            const updatePost = await Post.update({title:req.body.title, content:req.body.content, isPrivate:req.body.isPrivate}, {where:{id: req.params.postID}});
+            if(updatePost == 1) res.sendStatus(200);
+            else res.sendStatus(404);
+        } catch (error) {
+            res.status(500).send(error);
+        }
+    }
+)
+
+//delete a post
+postRouter.delete('/:postID',
+    checkUserID,
+    checkUserPassword,
+    async (req, res) => {
+        try {
+            const deletePost = await Post.destroy( {where:{id: req.params.postID}});
+            console.log(`update post is ${deletePost}, post id is ${req.params.postID}`)
+            if(deletePost == 1) res.sendStatus(200);
+            else res.sendStatus(404);
         } catch (error) {
             res.status(500).send(error);
         }
