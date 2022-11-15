@@ -34,7 +34,7 @@ async function checkUserPassword(req, res, next){
 
 async function checkUsername(req, res, next){
    
-    const user = User.findOne({where: {username: req.params.username ? req.params.username : req.body.username}})
+    const user = await User.findOne({where: {username: req.params.username ? req.params.username : req.body.username}})
 
    if(!user){
         return res.sendStatus(404);
@@ -42,5 +42,32 @@ async function checkUsername(req, res, next){
    else next(); //user credentials match a user
 }
 
+async function checkUserEmail(req, res, next){
+   
+    const user = await User.findOne({where: {email: req.params.email ? req.params.email : req.body.email}})
 
-module.exports = {checkErrors, checkUserID, checkUserPassword, checkUsername};
+   if(!user){
+        return res.sendStatus(404);
+   }
+   else next(); //user credentials match a user
+}
+
+async function isUsernameUnique(req, res, next){
+    const user = await User.findOne({where: {username: req.params.username ? req.params.username : req.body.username}})
+
+    if(user){
+        return res.sendStatus(400);
+    }
+    else next(); //username unique
+}
+
+async function isEmailUnique(req, res, next){
+    const user = await User.findOne({where: {email: req.params.email ? req.params.email : req.body.email}})
+
+   if(user){
+        return res.sendStatus(400);
+   }
+   else next(); //username unique
+}
+
+module.exports = {checkErrors, checkUserID, checkUserPassword, checkUserEmail, checkUsername, isUsernameUnique, isEmailUnique};
