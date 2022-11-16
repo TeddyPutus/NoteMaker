@@ -1,0 +1,31 @@
+.hide{
+    visibility: hidden;
+    display: none;
+}
+
+body{
+    display:grid;
+    grid-template-rows: 20vh 70vh 10vh;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+header{
+    background-color: blue;
+}
+
+main{
+    display:flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+footer{
+    background-color: antiquewhite;
+}
+
+#login-form{
+    display:flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}

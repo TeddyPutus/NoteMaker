@@ -26,7 +26,7 @@ postRouter.post("/:userID",
 //returns all posts not set to private
 postRouter.get('/', async (req, res) => {
     try {
-        const posts = await Post.findAll({where:{isPrivate: false}});
+        const posts = await Post.findAll({where:{isPrivate: false}, include: User});
         res.json(posts);
     } catch (error) {
         res.status(500).send(error);
