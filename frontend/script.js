@@ -2,6 +2,10 @@ let apiRoot = "http://localhost:5001/" //append specific api calls to this
 
 let user; //this will keep all of our user data once we are logged in!
 
+/** --------------------------------------------------------------------------------------------------*/
+/** ----------------------------- DOM manipulation functions -----------------------------------------*/
+/** --------------------------------------------------------------------------------------------------*/
+
 function createLogInSignUpForm(loginOrSignup = 'login'){
     const mainArea = document.querySelector("main");
     mainArea.innerHTML = ""; //clear previous form, so we can use this function to switch between log in and sign up
@@ -71,11 +75,11 @@ function createMainPage(){
 
     const publicPostBtn = document.createElement('button');
     publicPostBtn.setAttribute('id','public-post-btn');
-    publicPostBtn.innerText = "Show Public Posts";
+    publicPostBtn.innerText = "All Public Posts";
     
     const privatePostBtn = document.createElement('button');
     privatePostBtn.setAttribute('id','private-post-btn');
-    privatePostBtn.innerText = "Show Private Posts";
+    privatePostBtn.innerText = "Your Private Posts";
 
     const createPostBtn = document.createElement('button');
     createPostBtn.setAttribute('id','create-post-btn');
@@ -109,70 +113,69 @@ function createMainPage(){
 
         header.innerHTML="";
         const title = document.createElement('h1');
-        title.innerText = "Note Maker";
+        title.innerText = "Post It!";
         header.append(title);
     });
 
     header.append(logOutBtn);
 }
 
-async function signUp(email, username, password){
-    const response = await postData(`users/`, { email: email, username: username, password: password })
+function createUpdatePostForm(createOrUpdate = 'create', data = {}){
+    const postArea = document.getElementById("post-area");
+    postArea.innerHTML = "";
 
-    if(response.status === 200){
-        //success, redraw the login page and give an alert
-        createLogInSignUpForm();
-        alert("User created! Please log in to continue")
-    } else if (response.status === 400){
-        createLogInSignUpForm("signup");
-        alert("Username or email already taken!")
+    const formDiv = document.createElement('div');
+    formDiv.setAttribute('id','post-form');
+
+    const formTitle = document.createElement('h2');
+    formTitle.setAttribute('id','form-title');
+    formTitle.innerText = "New Post";
+
+    const titleInput = document.createElement('input');
+    titleInput.setAttribute('id','new-post-title');
+    titleInput.setAttribute('type','text');
+    titleInput.setAttribute('placeholder','Enter Title...');
+
+    const contentInput = document.createElement('TEXTAREA');
+    contentInput.setAttribute('id','new-post-content');
+    contentInput.setAttribute('placeholder','Enter content...');
+
+    const isPrivateInput = document.createElement('input');
+    isPrivateInput.setAttribute('id','is-private-checkbox');
+    isPrivateInput.setAttribute('type','checkbox');
+
+    const buttonDiv = document.createElement('div');
+    buttonDiv.setAttribute('id','create-btn-div');
+
+    const createBtn = document.createElement('button');
+    createBtn.setAttribute('id','create-btn');
+    
+
+    if(createOrUpdate === "create"){
+        createBtn.addEventListener('click', () => {
+            createNewPost(titleInput.value, contentInput.value, isPrivateInput.checked)
+        })
+        createBtn.innerText = "Create Post";
+    } else { //pre-fill all the values, change button text and use a different callback for the event listener
+        createBtn.addEventListener('click', () => {
+            updatePost(titleInput.value, contentInput.value, isPrivateInput.checked, data.id)
+        })
+
+        createBtn.innerText = "Update Post";
+        titleInput.setAttribute('value',data.title);
+        contentInput.setAttribute('value', data.content);
+        contentInput.innerText = data.content;
+        if(data.isPrivate) isPrivateInput.setAttribute('checked', true);
     }
+
+    buttonDiv.append(createBtn);
+    formDiv.append(formTitle, titleInput, contentInput, isPrivateInput, buttonDiv);
+    postArea.append(formDiv);
 }
 
-async function logIn(email, password){
-    await postData(`users/login`, { email: email, password: password }).then((response) => {
-        if(response.data){ 
-            user = response.data; //data is all the user details, save it so we can do other api calls without always entering password etc.
-            console.log(user);
-            createMainPage();
-            return;
-        } 
-        switch(response.status){
-            case 406:
-                alert("User already logged in");
-                break;
-            case 401:
-                alert("Incorrect password");
-                break;
-            case 404:
-                alert("No such user");
-                break;
-        }
-        createLogInSignUpForm();
-    })   
-}
-
-async function logOut(email, password){
-    await postData(`users/logout`, { email: email, password: password }).then((response) => {
-        if(response.data){ 
-            user = ""; //we've logged out, forget the user
-            createLogInSignUpForm();
-            return;
-        } 
-        switch(response.status){
-            case 406:
-                alert("User already logged in");
-                break;
-            case 401:
-                alert("Incorrect password");
-                break;
-            case 404:
-                alert("No such user");
-                break;
-        }
-        
-    })   
-}
+/** --------------------------------------------------------------------------------------------------*/
+/** ----------------------------------------- Post Drawing functions ---------------------------------*/
+/** --------------------------------------------------------------------------------------------------*/
 
 //function to get and display all public posts
 async function showPublicPosts(){
@@ -260,6 +263,74 @@ async function showPrivatePosts(){
     
 }
 
+/** --------------------------------------------------------------------------------------------------*/
+/** ------------------------------ API Call - User functions -----------------------------------------*/
+/** --------------------------------------------------------------------------------------------------*/
+
+async function signUp(email, username, password){
+    const response = await postData(`users/`, { email: email, username: username, password: password })
+
+    if(response.status === 200){
+        //success, redraw the login page and give an alert
+        createLogInSignUpForm();
+        alert("User created! Please log in to continue")
+    } else if (response.status === 400){
+        createLogInSignUpForm("signup");
+        alert("Username or email already taken!")
+    }
+}
+
+async function logIn(email, password){
+    await postData(`users/login`, { email: email, password: password }).then((response) => {
+        if(response.data){ 
+            user = response.data; //data is all the user details, save it so we can do other api calls without always entering password etc.
+            console.log(user);
+            createMainPage();
+            return;
+        } 
+        switch(response.status){
+            case 406:
+                alert("User already logged in");
+                break;
+            case 401:
+                alert("Incorrect password");
+                break;
+            case 404:
+                alert("No such user");
+                break;
+        }
+        createLogInSignUpForm();
+    })   
+}
+
+async function logOut(email, password){
+    await postData(`users/logout`, { email: email, password: password }).then((response) => {
+        if(response.data){ 
+            user = ""; //we've logged out, forget the user
+            createLogInSignUpForm();
+            return;
+        } 
+        switch(response.status){
+            case 406:
+                alert("User already logged in");
+                break;
+            case 401:
+                alert("Incorrect password");
+                break;
+            case 404:
+                alert("No such user");
+                break;
+        }
+        
+    })   
+}
+
+
+
+/** --------------------------------------------------------------------------------------------------*/
+/** --------------------------------- HTTP Request functions -----------------------------------------*/
+/** --------------------------------------------------------------------------------------------------*/
+
 // This function takes a url and a data object - can be used for any post API call
 async function postData(url = '', data = {}) {
     const response = await fetch(`${apiRoot}${url}`, { //creates the url to post, all api calls start with the root
@@ -320,58 +391,11 @@ async function postData(url = '', data = {}) {
     return {data: dataToSend, status: response.status}; // parses JSON response into native JavaScript objects
   }
 
-  function createUpdatePostForm(createOrUpdate = 'create', data = {}){
-    const postArea = document.getElementById("post-area");
-    postArea.innerHTML = "";
+  
 
-    const formDiv = document.createElement('div');
-    formDiv.setAttribute('id','post-form');
-
-    const formTitle = document.createElement('h2');
-    formTitle.setAttribute('id','form-title');
-    formTitle.innerText = "New Post";
-
-    const titleInput = document.createElement('input');
-    titleInput.setAttribute('id','new-post-title');
-    titleInput.setAttribute('type','text');
-    titleInput.setAttribute('placeholder','Enter Title...');
-
-    const contentInput = document.createElement('TEXTAREA');
-    contentInput.setAttribute('id','new-post-content');
-    contentInput.setAttribute('placeholder','Enter content...');
-
-    const isPrivateInput = document.createElement('input');
-    isPrivateInput.setAttribute('id','is-private-checkbox');
-    isPrivateInput.setAttribute('type','checkbox');
-
-    const buttonDiv = document.createElement('div');
-    buttonDiv.setAttribute('id','create-btn-div');
-
-    const createBtn = document.createElement('button');
-    createBtn.setAttribute('id','create-btn');
-    
-
-    if(createOrUpdate === "create"){
-        createBtn.addEventListener('click', () => {
-            createNewPost(titleInput.value, contentInput.value, isPrivateInput.checked)
-        })
-        createBtn.innerText = "Create Post";
-    } else { //pre-fill all the values, change button text and use a different callback for the event listener
-        createBtn.addEventListener('click', () => {
-            updatePost(titleInput.value, contentInput.value, isPrivateInput.checked, data.id)
-        })
-
-        createBtn.innerText = "Update Post";
-        titleInput.setAttribute('value',data.title);
-        contentInput.setAttribute('value', data.content);
-        contentInput.innerText = data.content;
-        if(data.isPrivate) isPrivateInput.setAttribute('checked', true);
-    }
-
-    buttonDiv.append(createBtn);
-    formDiv.append(formTitle, titleInput, contentInput, isPrivateInput, buttonDiv);
-    postArea.append(formDiv);
-}
+/** --------------------------------------------------------------------------------------------------*/
+/** ----------------------------------- API - Post functions -----------------------------------------*/
+/** --------------------------------------------------------------------------------------------------*/
 
 async function createNewPost(title, content, isPrivate){
     try {
@@ -402,4 +426,4 @@ async function deletePost(postId){
 
 
 createLogInSignUpForm();
-//   createMainPage();
+
