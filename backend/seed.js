@@ -33,6 +33,8 @@ const seed = async () => {
 
     await users[0].addPost(posts[0]);
     await users[1].addPost(posts[1]);
+    await users[1].addPost(posts[2]);
+    await users[1].addPost(posts[3]);
                                        
     await Promise.all(PostPromises); // The Promise.all() method takes an iterable of promises as an input, and returns a single Promise that resolves to an array of the results of the input promises.
     await Promise.all(UserPromises)

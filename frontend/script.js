@@ -97,6 +97,23 @@ function createMainPage(){
 
     buttonDiv.append(publicPostBtn, privatePostBtn, createPostBtn);
     mainArea.append(buttonDiv, postArea);
+
+    //logout button created in header
+    const header = document.querySelector('header');
+    const logOutBtn = document.createElement('button');
+    logOutBtn.setAttribute('id','logout-btn');
+    logOutBtn.innerText = "Logout";
+
+    logOutBtn.addEventListener('click', () => {
+        logOut(user.email, user.password);
+
+        header.innerHTML="";
+        const title = document.createElement('h1');
+        title.innerText = "Note Maker";
+        header.append(title);
+    });
+
+    header.append(logOutBtn);
 }
 
 async function signUp(email, username, password){
@@ -135,6 +152,28 @@ async function logIn(email, password){
     })   
 }
 
+async function logOut(email, password){
+    await postData(`users/logout`, { email: email, password: password }).then((response) => {
+        if(response.data){ 
+            user = ""; //we've logged out, forget the user
+            createLogInSignUpForm();
+            return;
+        } 
+        switch(response.status){
+            case 406:
+                alert("User already logged in");
+                break;
+            case 401:
+                alert("Incorrect password");
+                break;
+            case 404:
+                alert("No such user");
+                break;
+        }
+        
+    })   
+}
+
 //function to get and display all public posts
 async function showPublicPosts(){
     try {
@@ -155,7 +194,36 @@ async function showPublicPosts(){
                 postContents.classList.add('post-contents');
                 postContents.innerText = post.content;
 
-                postDiv.append(postTitle, postContents);
+                let postAuthor = document.createElement("p");
+                postAuthor.classList.add('post-author');
+                postAuthor.innerText = post.user.username;
+
+                postDiv.append(postTitle, postContents, postAuthor);
+
+                if(post.user.id === user.id){
+                    let buttonDiv = document.createElement('div');
+                    buttonDiv.classList.add('post-btn-div')
+
+                    let editButton = document.createElement("button");
+                    editButton.classList.add('edit-post-button');
+                    editButton.innerText = "Edit post";
+
+                    editButton.addEventListener('click', () => {
+                        createUpdatePostForm("update", post);
+                    })
+
+                    let deleteButton = document.createElement("button");
+                    deleteButton.classList.add('delete-post-button');
+                    deleteButton.innerText = "Delete";
+
+                    deleteButton.addEventListener('click', () => {
+                        deletePost(post.id);
+                    })
+
+                    buttonDiv.append(editButton, deleteButton);
+                    postDiv.append(buttonDiv)
+                }
+
                 postArea.append(postDiv);
             }
     } catch (error) {
@@ -222,7 +290,37 @@ async function postData(url = '', data = {}) {
     
   }
 
-  function createUpdatePostForm(createOrUpdate = 'create'){
+  async function putData(url = '', data = {}) {
+    const response = await fetch(`${apiRoot}${url}`, { //creates the url to post, all api calls start with the root
+      method: 'PUT', 
+      mode: 'cors', //Must be cors, or nothin will appear in the body!
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+
+    let dataToSend = response.status === 200 ? await response.json() : false; //you need to await .json in this case, because the fetch promis is fulfilled once the header returns, NOT the data
+    
+    return {data: dataToSend, status: response.status}; // parses JSON response into native JavaScript objects
+  }
+
+  async function deleteData(url = '', data = {}) {
+    const response = await fetch(`${apiRoot}${url}`, { //creates the url to post, all api calls start with the root
+      method: 'DELETE', 
+      mode: 'cors', //Must be cors, or nothin will appear in the body!
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+
+    let dataToSend = response.status === 200 ? await response.json() : false; //you need to await .json in this case, because the fetch promis is fulfilled once the header returns, NOT the data
+    
+    return {data: dataToSend, status: response.status}; // parses JSON response into native JavaScript objects
+  }
+
+  function createUpdatePostForm(createOrUpdate = 'create', data = {}){
     const postArea = document.getElementById("post-area");
     postArea.innerHTML = "";
 
@@ -258,8 +356,16 @@ async function postData(url = '', data = {}) {
             createNewPost(titleInput.value, contentInput.value, isPrivateInput.checked)
         })
         createBtn.innerText = "Create Post";
-    } else { //different function call to be implemented for updating
+    } else { //pre-fill all the values, change button text and use a different callback for the event listener
+        createBtn.addEventListener('click', () => {
+            updatePost(titleInput.value, contentInput.value, isPrivateInput.checked, data.id)
+        })
+
         createBtn.innerText = "Update Post";
+        titleInput.setAttribute('value',data.title);
+        contentInput.setAttribute('value', data.content);
+        contentInput.innerText = data.content;
+        if(data.isPrivate) isPrivateInput.setAttribute('checked', true);
     }
 
     buttonDiv.append(createBtn);
@@ -271,6 +377,24 @@ async function createNewPost(title, content, isPrivate){
     try {
         await postData(`posts/${user.id}`, {title: title, content: content, isPrivate: isPrivate})
         alert("Post created successfully!");
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function updatePost(title, content, isPrivate, postId){
+    try {
+        await putData(`posts/${postId}`, {title: title, content: content, isPrivate: isPrivate, userID: user.id, password: user.password})
+        alert("Post updated successfully!");
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function deletePost(postId){
+    try {
+        await deleteData(`posts/${postId}`, {userID: user.id, password: user.password})
+        alert("Post deleted successfully!");
     } catch (error) {
         console.log(error);
     }
