@@ -38,7 +38,7 @@ postRouter.get('/public/:userID',
     checkUserID,
     async (req, res) => {
         try {
-            const posts = await Post.findAll({where:{userId: req.params.userID, isPrivate: false}});
+            const posts = await Post.findAll({where:{userId: req.params.userID, isPrivate: false}, include: User});
             res.json(posts);
         } catch (error) {
             res.status(500).send(error);
@@ -52,7 +52,7 @@ postRouter.get('/private/:userID/:password',
     checkUserPassword,
     async (req, res) => {
         try {
-            const posts = await Post.findAll({where:{userId: req.params.userID, isPrivate: true}});
+            const posts = await Post.findAll({where:{userId: req.params.userID, isPrivate: true}, include: User});
             res.json(posts);
         } catch (error) {
             res.status(500).send(error);

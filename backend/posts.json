@@ -11,13 +11,58 @@
         "isPrivate": true
       },
       {
-        "title": "testingtesting345",
-        "content": "second public post",
+        "title": "testingtesting345fadgdfsgsdfdgdf",
+        "content": "second public postsfgsgfsgsgfs",
         "isPrivate": false
       },
       {
         "title": "testingtesting456",
         "content": "anothe rpublic post",
+        "isPrivate": false
+      },
+      {
+        "title": "testingtesting123",
+        "content": "ThisIsTheFirstPost",
+        "isPrivate": false
+      },
+      {
+        "title": "testingtesting123",
+        "content": "ThisIsTheFirstPrivatePost",
+        "isPrivate": true
+      },
+      {
+        "title": "testingtesting345",
+        "content": "second public post",
+        "isPrivate": false
+      },
+      {
+        "title": "testingtesting123",
+        "content": "ThisIsTheFirstPost",
+        "isPrivate": false
+      },
+      {
+        "title": "testingtesting123",
+        "content": "ThisIsTheFirstPrivatePost",
+        "isPrivate": true
+      },
+      {
+        "title": "testingtesting345",
+        "content": "second public post",
+        "isPrivate": false
+      },
+      {
+        "title": "testingtesting123",
+        "content": "ThisIsTheFirstPost",
+        "isPrivate": false
+      },
+      {
+        "title": "testingtesting123",
+        "content": "ThisIsTheFirstPrivatePost",
+        "isPrivate": true
+      },
+      {
+        "title": "testingtesting345",
+        "content": "second public post",
         "isPrivate": false
       }
     ]
